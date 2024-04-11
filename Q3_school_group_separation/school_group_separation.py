@@ -54,10 +54,68 @@ def write(fileName, content):
 #Return value : string with the output. If it is impossible, return "impossible".
 #               otherwise, return in a single string both ouput lines that contain
 #               two groups (students are separated by spaces and the two lines by a \n)
+
+
+
+def DFS (graph, vertex):
+    global lenPath
+    global unevenCycle
+
+    desc = graph[vertex]['descendants']
+    for v in desc:
+       
+       # print(v, graph[v]['discovered'])
+
+        if graph[v]['discovered'] ==1:     # already discovered: cycle
+            print("cycle!")
+            if (lenPath%2) == 1:
+                print("cycle impair")
+                unevenCycle = True
+                return 
+            else:
+                lenPath=0
+        else:   # not disccovered
+            lenPath += 1                # add a vertex to the path
+            graph[v]['discovered'] = 1    # is discovered
+            DFS(graph, v)
+    
+
+
+
 def createGroups(students, pairs):
-    # TODO : Compléter ici/Complete here...
-    # Vous pouvez découper votre code en d'autres fonctions...
-    # You may split your code in other functions...
+    # create graph: key is the vertex, values are neighboors of the vertex (unwanted pair)
+    global graph
+    graph = {}
+    for student in students:
+        graph[student]={'descendants': [], 'precedent':[], 'discovered':0 }
+       # discovered[student] = 0
+
+    for pair in pairs:
+        graph[pair[0]]['descendants'].append(pair[1])
+        
+
+   # print(graph)
+
+    # uneven cycle
+    global unevenCycle
+    unevenCycle = False
+
+    # Find cycle: DFS
+    global lenPath
+    lenPath = 0
+
+    # begin DFS
+    for v in graph:
+        if graph[v]['discovered'] == 0:
+            print("begin DFS")
+            DFS(graph, v)    
+
+
+   # x = DFS(graph, students[0])
+    print(lenPath)
+    print("uneven cycle = ", unevenCycle)
+    print(graph)
+
     return "impossible"
     
 
