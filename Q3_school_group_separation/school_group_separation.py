@@ -2,7 +2,7 @@
 #Nom, matricule
 
 import sys
-
+import time
 #Fonction pour lire le fichier d'input. Vous ne deviez pas avoir besoin de la modifier.
 #Retourne la liste des noms d'étudiants (students) et la liste des paires qui ne peuvent
 #doivent pas être mis dans le même groupe (pairs)
@@ -55,32 +55,20 @@ def write(fileName, content):
 #               otherwise, return in a single string both ouput lines that contain
 #               two groups (students are separated by spaces and the two lines by a \n)
 
+def DFS(graph, vertex, color):
 
-
-def DFS (graph, vertex):
-    global lenPath
-    global unevenCycle
-
-    desc = graph[vertex]['descendants']
-    for v in desc:
-       
-       # print(v, graph[v]['discovered'])
-
-        if graph[v]['discovered'] ==1:     # already discovered: cycle
-            print("cycle!")
-            if (lenPath%2) == 1:
-                print("cycle impair")
-                unevenCycle = True
-                return 
-            else:
-                lenPath=0
-        else:   # not disccovered
-            lenPath += 1                # add a vertex to the path
-            graph[v]['discovered'] = 1    # is discovered
-            DFS(graph, v)
-    
-
-
+    stack = [(vertex, 0)] # init stack
+    color[vertex] = 0  # color w/ 0
+    while stack:
+        v, current = stack.pop()
+        next = 1 - current # next coloring
+        for desc in graph[v]['descendants']:
+            if desc not in color:  # not visited
+                color[desc] = next
+                stack.append((desc, next))
+            elif color[desc] != next:
+                return False  # not 2 colorable
+    return True
 
 def createGroups(students, pairs):
     # create graph: key is the vertex, values are neighboors of the vertex (unwanted pair)
@@ -88,37 +76,26 @@ def createGroups(students, pairs):
     graph = {}
     for student in students:
         graph[student]={'descendants': [], 'precedent':[], 'discovered':0 }
-       # discovered[student] = 0
 
     for pair in pairs:
         graph[pair[0]]['descendants'].append(pair[1])
-        
+        graph[pair[1]]['descendants'].append(pair[0])
 
-   # print(graph)
-
-    # uneven cycle
-    global unevenCycle
-    unevenCycle = False
-
-    # Find cycle: DFS
-    global lenPath
-    lenPath = 0
-
-    # begin DFS
-    for v in graph:
-        if graph[v]['discovered'] == 0:
-            print("begin DFS")
-            DFS(graph, v)    
-
-
-   # x = DFS(graph, students[0])
-    print(lenPath)
-    print("uneven cycle = ", unevenCycle)
-    print(graph)
-
-    return "impossible"
+    color = {}
+    for student in students:
+        if student not in color:
+            if not DFS(graph, student, color):
+                output = "impossible"
+                return output
+    if color == {}: #nothing or the same
+        output =  "impossible"  
+        return output     
     
-
+    col1 = [s for s in color if color[s] == 0]
+    col2 = [s for s in color if color[s] == 1]
+    
+    output = '\n'.join([' '.join(col1) +'\n'+ ' '.join(col2)]) #concated color groups
+    return output
 
 #Normalement, vous ne devriez pas avoir à modifier
 #Normaly, you shouldn't need to modify
@@ -126,7 +103,10 @@ def main(args):
     input_file = args[0]
     output_file = args[1]
     students, pairs = read(input_file)
+    start_time = time.time()
     output = createGroups(students, pairs)
+    print("Time: ", time.time() - start_time)
+    #print("recieved output", output)
     write(output_file, output)
             
 
