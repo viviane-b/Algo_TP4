@@ -32,8 +32,16 @@ def sieve(n):
 
     return isPrime
 
+m = 1000000
+aList = [2, 3, 5] #, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41]
+primes = []
+primesBool = sieve(m)
+for i in range (2, len(primesBool)):
+    if primesBool[i]==1:
+        primes.append(i)
+    #    print(i)
 
-aList = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41]
+print("len(Primes)= ", len(primes))
 
 def millerRabin(n, a):
     s = 0
@@ -57,14 +65,23 @@ def millerRabin(n, a):
 
 
 def isPrime(n):
-    if n in aList:
+    if n<m and n in primes:
         return True
+    elif n<m:
+        return False        # n is in primes array range but is not a prime
 
-    for a in aList:
-        test = millerRabin(n,a)
-        if (not test):
-            return False
+    else:
+        for a in aList:
+            test = millerRabin(n,a)
+            if (not test):
+                return False
     return True
+
+def isPrime2(n):
+    global primes
+    if n in primes:
+        return True
+    return False
 
 def concatPrimes(x,y):
     a = str(x)
@@ -77,23 +94,25 @@ def isSpecial(primes, k):
     indexCliques = []
     primesClique = []
     sommesSpeciales = []
+    max = 400
 
     while len(sommesSpeciales) < k:
         print(sommesSpeciales)
-        for a in range(len(primes)):
-            for b in range (a, len(primes)):
+        for a in range(max):
+            for b in range (a, max):
                 if isPrime(concatPrimes(primes[a],primes[b])) and isPrime(concatPrimes(primes[b],primes[a])):
 
-                    for c in range (b, len(primes)):
+                    for c in range (b, max):
                         if isPrime(concatPrimes(primes[a],primes[c])) and isPrime(concatPrimes(primes[b], primes[c])) and isPrime(concatPrimes(primes[c],primes[b])) and isPrime(concatPrimes(primes[c],primes[a])):
 
-                            for d in range (c, len(primes)):
-                                #print(primes[a], primes[b], primes[c], primes[d])
+                            for d in range (c, max):
+                                print(primes[a], primes[b], primes[c], primes[d])
                                 if isPrime(concatPrimes(primes[a], primes[d])) and isPrime(concatPrimes(primes[b], primes[d])) and isPrime(concatPrimes(primes[c], primes[d])) and isPrime(concatPrimes(primes[d],primes[a])) and isPrime(concatPrimes(primes[d],primes[b])) and isPrime(concatPrimes(primes[d],primes[c])) and ((a,b,c,d) not in indexCliques):
                                     indexCliques.append((a,b,c,d))
                                     primesClique.append([primes[a],primes[b],primes[c],primes[d]])
                                     sommesSpeciales.append(primes[a]+primes[b]+primes[c]+primes[d])
 
+                                    print(primes[a], primes[b], primes[c], primes[d])
                                     print(primesClique)
     return(primesClique)
 
@@ -104,14 +123,15 @@ def main(args):
     n = int(args[0])
     output_file = args[1]
 
-    primes = []
-    primesBool = sieve(1000)
-    for i in range (2, len(primesBool)):
-        if primesBool[i]==1:
-            primes.append(i)
-            print(i)
+    # global primes
+    # primes = []
+    # primesBool = sieve(10000)
+    # for i in range (2, len(primesBool)):
+    #     if primesBool[i]==1:
+    #         primes.append(i)
+    #         print(i)
 
-    x = 211
+    x = concatPrimes(677,827)
     print(x, "is prime? ", isPrime(x))
 
     tab = isSpecial(primes, 2)
